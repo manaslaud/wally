@@ -1,15 +1,19 @@
+import { TRAINING_DATASET } from "./config/indexer";
 import { prisma } from "./db/client";
 import { UniswapV3Indexer } from "./indexer/uniswap-v3";
 
 async function main() {
-  const indexer = new UniswapV3Indexer({
-    walletCount: 5,
-    concurrency: 5,
-  });
+  const indexer = new UniswapV3Indexer(TRAINING_DATASET);
 
   const data = await indexer.index();
+  const swapCount = data.reduce(
+    (total, wallet) => total + wallet.swaps.length,
+    0,
+  );
 
-  console.log(`Indexed ${data.length} wallets`);
+  console.log(
+    `Indexed ${data.length} wallets / ${swapCount} swaps for training`,
+  );
 }
 
 main()

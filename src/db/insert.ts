@@ -1,6 +1,7 @@
 export type InsertManyOptions = {
   chunkSize?: number;
   retries?: number;
+  log?: boolean;
 };
 
 const TRANSIENT_PRISMA_CODES = new Set([
@@ -49,6 +50,7 @@ export async function insertManyWithRetry<T>(
 
   const chunkSize = options.chunkSize ?? 500;
   const retries = options.retries ?? 3;
+  const log = options.log ?? false;
   const totalChunks = Math.ceil(rows.length / chunkSize);
 
   for (let offset = 0; offset < rows.length; offset += chunkSize) {
@@ -60,9 +62,11 @@ export async function insertManyWithRetry<T>(
     while (true) {
       try {
         await insertFn(chunk);
-        console.log(
-          `  inserted chunk ${chunkNumber}/${totalChunks} (${chunk.length} rows)`,
-        );
+        if (log) {
+          console.log(
+            `  inserted chunk ${chunkNumber}/${totalChunks} (${chunk.length} rows)`,
+          );
+        }
         break;
       } catch (error) {
         attempt += 1;

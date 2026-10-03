@@ -7,8 +7,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch src/main.ts",
-    "start": "tsx src/main.ts",
+    "dev:indexers": "tsx watch src/run-indexers.ts",
+    "start:indexers": "tsx src/run-indexers.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev"
   },

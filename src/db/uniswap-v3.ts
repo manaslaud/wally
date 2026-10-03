@@ -7,6 +7,34 @@ function uniqueById<T extends { id: string }>(items: T[]): T[] {
   return [...new Map(items.map((item) => [item.id, item])).values()];
 }
 
+function uniqueByTxHashLogIndex<T extends { txHash: string; logIndex: bigint }>(
+  items: T[],
+): T[] {
+  return [
+    ...new Map(
+      items.map((item) => [`${item.txHash}:${item.logIndex}`, item]),
+    ).values(),
+  ];
+}
+
+function parseLogIndex(value: string): bigint {
+  try {
+    return BigInt(value);
+  } catch {
+    throw new Error(`Invalid logIndex: ${value}`);
+  }
+}
+
+function parseDecimals(value: string): number {
+  const decimals = Number.parseInt(value, 10);
+
+  if (!Number.isInteger(decimals) || decimals < 0) {
+    throw new Error(`Invalid token decimals: ${value}`);
+  }
+
+  return decimals;
+}
+
 export async function persistWalletData(data: WalletData): Promise<void> {
   const walletAddress = data.wallet.toLowerCase();
 
@@ -26,13 +54,13 @@ export async function persistWalletData(data: WalletData): Promise<void> {
         id: swap.token0.id.toLowerCase(),
         symbol: swap.token0.symbol,
         name: swap.token0.name,
-        decimals: swap.token0.decimals,
+        decimals: parseDecimals(swap.token0.decimals),
       },
       {
         id: swap.token1.id.toLowerCase(),
         symbol: swap.token1.symbol,
         name: swap.token1.name,
-        decimals: swap.token1.decimals,
+        decimals: parseDecimals(swap.token1.decimals),
       },
     ]),
   );
@@ -44,20 +72,23 @@ export async function persistWalletData(data: WalletData): Promise<void> {
     })),
   );
 
-  const swaps: Prisma.SwapCreateManyInput[] = data.swaps.map((swap) => ({
-    id: swap.id,
-    timestamp: BigInt(swap.timestamp),
-    blockNumber: BigInt(swap.transaction.blockNumber),
-    sender: swap.sender.toLowerCase(),
-    recipient: swap.recipient.toLowerCase(),
-    amount0: swap.amount0,
-    amount1: swap.amount1,
-    txHash: swap.transaction.id,
-    walletAddress,
-    token0Id: swap.token0.id.toLowerCase(),
-    token1Id: swap.token1.id.toLowerCase(),
-    poolId: swap.pool.id.toLowerCase(),
-  }));
+  const swaps: Prisma.SwapCreateManyInput[] = uniqueByTxHashLogIndex(
+    data.swaps.map((swap) => ({
+      id: swap.id,
+      timestamp: BigInt(swap.timestamp),
+      blockNumber: BigInt(swap.transaction.blockNumber),
+      logIndex: parseLogIndex(swap.logIndex),
+      sender: swap.sender.toLowerCase(),
+      recipient: swap.recipient.toLowerCase(),
+      amount0: swap.amount0,
+      amount1: swap.amount1,
+      txHash: swap.transaction.id.toLowerCase(),
+      walletAddress,
+      token0Id: swap.token0.id.toLowerCase(),
+      token1Id: swap.token1.id.toLowerCase(),
+      poolId: swap.pool.id.toLowerCase(),
+    })),
+  );
 
   await insertManyWithRetry(tokens, (chunk) =>
     prisma.token.createMany({

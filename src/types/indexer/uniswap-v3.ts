@@ -1,8 +1,10 @@
 export type Swap = {
   id: string;
   timestamp: string;
+  logIndex: string;
   sender: string;
   recipient: string;
+  origin: string;
 
   amount0: string;
   amount1: string;
@@ -11,14 +13,14 @@ export type Swap = {
     id: string;
     symbol: string;
     name: string;
-    decimals: number;
+    decimals: string;
   };
 
   token1: {
     id: string;
     symbol: string;
     name: string;
-    decimals: number;
+    decimals: string;
   };
 
   pool: {

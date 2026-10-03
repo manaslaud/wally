@@ -29,10 +29,11 @@ model Pool {
 }
 
 model Swap {
-  id String @id
+  id String
 
   timestamp   BigInt
   blockNumber BigInt
+  logIndex    BigInt
 
   sender    String
   recipient String
@@ -52,9 +53,10 @@ model Swap {
   token1 Token  @relation("SwapToken1", fields: [token1Id], references: [id])
   pool   Pool   @relation(fields: [poolId], references: [id])
 
+  @@id([txHash, logIndex])
+  @@index([id])
   @@index([walletAddress])
   @@index([timestamp])
-  @@index([txHash])
   @@index([poolId])
   @@index([token0Id])
   @@index([token1Id])
