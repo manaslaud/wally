@@ -1,13 +1,8 @@
-import "dotenv/config";
-
-import { GraphResponse, Swap } from "../types/indexer/uniswap-v3";
-
 import { GRAPH_URL } from "../config/indexer";
+import { persistWalletData } from "../db/uniswap-v3";
+import { GraphResponse, Swap, WalletData } from "../types/indexer/uniswap-v3";
 
-export interface WalletData {
-  wallet: string;
-  swaps: Swap[];
-}
+export type { WalletData };
 
 export interface IndexerOptions {
   walletCount: number;
@@ -247,6 +242,12 @@ export class UniswapV3Indexer {
             wallet,
             swaps: [],
           };
+        }
+
+        try {
+          await persistWalletData(results[index]);
+        } catch (error) {
+          console.error(`Failed to persist ${wallet}:`, error);
         }
       }
     };

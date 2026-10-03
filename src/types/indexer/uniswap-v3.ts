@@ -32,6 +32,11 @@ export type Swap = {
   };
 };
 
+export type WalletData = {
+  wallet: string;
+  swaps: Swap[];
+};
+
 export type GraphResponse = {
   data?: {
     swaps: Swap[];

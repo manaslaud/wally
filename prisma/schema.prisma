@@ -1,0 +1,61 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+model Wallet {
+  address String @id
+  swaps   Swap[]
+}
+
+model Token {
+  id       String @id
+  symbol   String
+  name     String
+  decimals Int
+
+  swapsAsToken0 Swap[] @relation("SwapToken0")
+  swapsAsToken1 Swap[] @relation("SwapToken1")
+}
+
+model Pool {
+  id      String @id
+  feeTier String
+  swaps   Swap[]
+}
+
+model Swap {
+  id String @id
+
+  timestamp   BigInt
+  blockNumber BigInt
+
+  sender    String
+  recipient String
+
+  amount0 String
+  amount1 String
+
+  txHash String
+
+  walletAddress String
+  token0Id      String
+  token1Id      String
+  poolId        String
+
+  wallet Wallet @relation(fields: [walletAddress], references: [address])
+  token0 Token  @relation("SwapToken0", fields: [token0Id], references: [id])
+  token1 Token  @relation("SwapToken1", fields: [token1Id], references: [id])
+  pool   Pool   @relation(fields: [poolId], references: [id])
+
+  @@index([walletAddress])
+  @@index([timestamp])
+  @@index([txHash])
+  @@index([poolId])
+  @@index([token0Id])
+  @@index([token1Id])
+}

@@ -1,3 +1,4 @@
+import { prisma } from "./db/client";
 import { UniswapV3Indexer } from "./indexer/uniswap-v3";
 
 async function main() {
@@ -11,7 +12,11 @@ async function main() {
   console.log(`Indexed ${data.length} wallets`);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+main()
+  .catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
