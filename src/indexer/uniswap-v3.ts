@@ -201,6 +201,7 @@ export class UniswapV3Indexer {
           origin
           amount0
           amount1
+          amountUSD
 
           token0 {
             id

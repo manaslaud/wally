@@ -8,6 +8,7 @@ export type Swap = {
 
   amount0: string;
   amount1: string;
+  amountUSD: string;
 
   token0: {
     id: string;

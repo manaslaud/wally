@@ -38,8 +38,9 @@ model Swap {
   sender    String
   recipient String
 
-  amount0 String
-  amount1 String
+  amount0   String
+  amount1   String
+  amountUSD String
 
   txHash String
 

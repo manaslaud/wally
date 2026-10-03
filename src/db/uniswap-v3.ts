@@ -82,6 +82,7 @@ export async function persistWalletData(data: WalletData): Promise<void> {
       recipient: swap.recipient.toLowerCase(),
       amount0: swap.amount0,
       amount1: swap.amount1,
+      amountUSD: swap.amountUSD,
       txHash: swap.transaction.id.toLowerCase(),
       walletAddress,
       token0Id: swap.token0.id.toLowerCase(),
